@@ -1,0 +1,20 @@
+%%{init: {'flowchart': {'nodeSpacing': 30, 'rankSpacing': 50}}}%%
+flowchart TB
+    D[Generate expanded synthetic dataset] --> S[User-level train/test split]
+    S --> T[Tabular transaction features]
+    S --> G[User-only device/IP graph]
+    S --> Y[Fraud labels]
+    T --> X[XGBoost]
+    G --> GN[GraphSAGE GNN]
+    X --> XO[Held-out XGBoost predictions]
+    GN --> GO[Held-out GNN predictions]
+    XO --> P[Paired prediction table]
+    GO --> P
+    Y --> P
+    P --> ST[Balanced logistic stacker]
+    ST --> E[Final synthetic benchmark]
+
+    %% Jev is a post-investigation verification layer, not part of model training/evaluation.
+
+
+    %% Jev verification is operational guardrail logic and is not part of model training or fraud-score evaluation.

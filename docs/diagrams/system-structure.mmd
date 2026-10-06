@@ -1,0 +1,58 @@
+%%{init: {'flowchart': {'nodeSpacing': 32, 'rankSpacing': 55}}}%%
+flowchart TB
+    subgraph Input[Input Layer]
+        UI[Frontend Dashboard]
+        API[FastAPI API]
+    end
+
+    subgraph State[State and Data]
+        DB[(PostgreSQL / SQLite -- transaction state)]
+        GRAPH[(User-only risk graph)]
+        AUDIT[(Audit logs)]
+    end
+
+    subgraph Intelligence[Risk Intelligence]
+        FE[Feature engineering]
+        TAB[Tabular XGBoost]
+        GNN[GraphSAGE]
+        STACK[Learned stacker]
+        VEL[Velocity service]
+        GUARD[Security guardrails]
+        POLICY[Risk aggregation + policy<br/>incl. confidence auto-block]
+    end
+
+    subgraph Investigation[Investigation and Resolution]
+        EVID[Deterministic evidence tools]
+        LLM[Optional LLM investigation]
+        JEV[Optional Jev verification<br/>retry + circuit breaker]
+        HITL[Human review queue]
+        AUTO[Jev auto-triage<br/>eligible cases only]
+    end
+
+    UI <--> API
+    API --> FE
+    API --> DB
+    DB --> FE
+    DB --> VEL
+    DB --> GRAPH
+    FE --> TAB
+    FE --> GNN
+    GRAPH --> GNN
+    TAB --> STACK
+    GNN --> STACK
+    STACK --> POLICY
+    VEL --> POLICY
+    GUARD --> POLICY
+    POLICY --> API
+    POLICY --> EVID
+    POLICY -->|"only if mandatory-human<br/>reason, or confidence < 0.95"| HITL
+    EVID --> LLM
+    LLM --> JEV
+    JEV -->|REVIEW_RECOMMENDED| HITL
+    JEV -->|CONSISTENT + eligible| AUTO
+    AUTO --> AUDIT
+    JEV --> AUDIT
+    API --> AUDIT
+    EVID --> AUDIT
+    HITL --> AUDIT
+    

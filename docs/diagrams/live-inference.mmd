@@ -1,0 +1,30 @@
+%%{init: {'flowchart': {'nodeSpacing': 28, 'rankSpacing': 48}}}%%
+flowchart TB
+    TX[Frontend transaction] --> API[FastAPI /transactions/score]
+    API --> TABF[Transaction feature builder]
+    API --> GRAPHF[Current User-only graph]
+    TABF --> XGB["XGBoost<br/><b>~17ms</b> p50"]
+    GRAPHF --> GNN["GraphSAGE<br/><b>~0.2ms</b> p50 (cached snapshot)"]
+    XGB --> XS[XGBoost probability]
+    GNN --> GS[GNN probability]
+    XS --> STACK["Learned stacker<br/><b>~1µs</b> (logistic blend)"]
+    GS --> STACK
+    STACK --> CAL[Combined model probability]
+    API --> VEL["Velocity<br/><b>~0.1ms</b> DB query"]
+    API --> SEC[VPN / proxy / security signals]
+    CAL --> POL[Risk policy + guardrails]
+    VEL --> POL
+    SEC --> POL
+    POL --> DEC{Decision / HITL policy}
+    DEC -->|automatic| OUT[APPROVE / MONITOR / HOLD / BLOCK]
+    DEC -->|review required| HITL[HITL queue]
+    HITL --> REV[Human reviewer]
+    OUT --> AUD[Audit trail]
+    REV --> AUD
+
+    %% Jev is intentionally outside the scoring hot path:
+    %% it runs only after an investigation is requested.
+    POL -.->|investigation trigger| INV[Investigation agent]
+    INV --> JEV[Jev verification<br/>optional post-investigation<br/>retry + circuit breaker]
+    JEV -.-> HITL2[HITL / Jev auto-triage]
+    

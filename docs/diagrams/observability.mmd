@@ -1,0 +1,14 @@
+%%{init: {'flowchart': {'nodeSpacing': 28, 'rankSpacing': 48}}}%%
+flowchart TB
+    API[FastAPI API] --> PM[Prometheus /metrics]
+    W1[Worker Replica 1] --> PW1[Worker Metrics :9101]
+    WN[Worker Replica N] --> PWN[Worker Metrics :9101]
+    PW1 --> PM
+    PWN --> PM
+    API --> OT[OpenTelemetry SDK]
+    W1 --> OTW[OpenTelemetry SDK]
+    API --> JV[Jev Prometheus metrics<br/>latency / retries / failures / disagreement]
+    OT --> COL[OTLP Collector / APM]
+    OTW --> COL
+    PM --> G[Grafana]
+    

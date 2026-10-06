@@ -1,0 +1,43 @@
+%%{init: {'flowchart': {'nodeSpacing': 28, 'rankSpacing': 50}}}%%
+flowchart TB
+    T[Incoming transaction] --> F[Feature engineering]
+    F --> V[Hourly velocity]
+    F --> S[Security signals]
+    F --> TM[Tabular ML]
+    F --> G[User-only graph lookup]
+    G --> GN[GNN node embedding]
+    TM --> ST[Learned stacker]
+    GN --> ST
+    ST --> CS[Calibrated model score]
+    V --> RA[Risk aggregation]
+    S --> RA
+    CS --> RA
+    RA --> P[Decision policy]
+    P --> M{Mandatory-human reason present?}
+    M -->|Yes, always| R[HUMAN_REVIEW]
+    M -->|No| C{Confidence >= 0.95?}
+    C -->|Yes| B[BLOCK — auto]
+    C -->|No| TIER{Risk tier}
+    TIER -->|LOW| A[APPROVE]
+    TIER -->|MEDIUM| MON[MONITOR]
+    TIER -->|HIGH| HOLD[HOLD_FOR_INVESTIGATION]
+    TIER -->|CRITICAL| BPR[BLOCK_PENDING_REVIEW]
+    R --> Q[HITL queue]
+    Q --> HR[Human reviewer]
+    Q --> I[Investigation agent]
+    I --> J[Jev verification<br/>optional; resilient external call]
+    J --> JV{Consistent + grounded<br/>+ confidence floor?}
+    JV -->|No| HR
+    JV -->|Yes| MH{Mandatory-human reason?}
+    MH -->|Yes| HR
+    MH -->|No| AR[Jev auto-resolve<br/>pending review]
+    I -->|Disabled / unavailable| HR
+    HR --> D[Final reviewer decision]
+    AR --> D
+    A --> AU[Audit trail]
+    MON --> AU
+    HOLD --> AU
+    BPR --> AU
+    B --> AU
+    D --> AU
+    
