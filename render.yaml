@@ -1,0 +1,76 @@
+services:
+  - type: web
+    name: razor-risk-app
+    runtime: python
+    # Explicit stacker training step added: ml/risk_aggregator.py's
+    # train_stacker() lazily self-heals if aggregator.npz is missing, but
+    # that means the FIRST live request would pay for training instead of
+    # a slow build. Training it here keeps first-request latency normal.
+    buildCommand: "pip install -r requirements.txt && python -m data.generate_synthetic_data && python -m ml.train_tabular_model && python -m ml.train_gnn && python -m ml.risk_aggregator"
+    startCommand: "python run.py"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.7"
+      - key: HOST
+        value: "0.0.0.0"
+      - key: PORT
+        value: "10000"
+      # config.py now defaults DATABASE_URL to a LOCAL Postgres URL
+      # (postgresql://...@localhost:5432/...) since the app's production
+      # data plane is PostgreSQL, not SQLite. That default does not exist
+      # on a Render web dyno -- it must be set explicitly, either to
+      # Render's own managed Postgres (see docs/SUPABASE_SETUP.md for the
+      # Supabase alternative) or a Supabase connection string. sync: false
+      # means Render prompts for the actual value instead of storing one
+      # in this committed file -- there is deliberately no working
+      # committed default, since a committed Postgres URL would either be
+      # a real credential (must not be committed) or a fake one that fails
+      # exactly like the old unset case did.
+      - key: DATABASE_URL
+        sync: false
+      # Optional. Leave unset to run with REDIS_REQUIRED=false (below) --
+      # the app degrades gracefully: rate limiting fails open and
+      # investigations run synchronously in-process instead of through the
+      # distributed queue (see BUGS.md Bug #34). Set this (e.g. an Upstash
+      # or Render Key Value URL) and flip REDIS_REQUIRED to "true" for the
+      # fully distributed behavior docker-compose.yml runs locally.
+      - key: REDIS_URL
+        sync: false
+      - key: REDIS_REQUIRED
+        value: "false"
+      # Optional — set in the Render dashboard to require an X-API-Key
+      # header on every /api/v1/* request (config.py). Empty/unset keeps
+      # the API open, matching this project's existing demo-friendly default.
+      - key: API_KEY
+        sync: false
+      # Optional — lock CORS to your actual frontend origin(s) instead of
+      # "*" once you know your Vercel URL, e.g. "https://your-app.vercel.app".
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # Optional — set these in the Render dashboard (Environment tab) if you
+      # want the LLM investigation agent to run live instead of its
+      # deterministic rule-based fallback. sync: false means Render prompts
+      # for a value instead of storing one in this committed file.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  # Optional: uncomment and configure once DATABASE_URL/REDIS_URL above point
+  # at real managed instances, to actually consume the investigation queue
+  # instead of leaving jobs to run inline via the no-Redis fallback. Mirrors
+  # docker-compose.yml's investigation-worker service.
+  # - type: worker
+  #   name: razor-risk-investigation-worker
+  #   runtime: python
+  #   buildCommand: "pip install -r requirements.txt"
+  #   startCommand: "python -m infra.worker"
+  #   envVars:
+  #     - key: DATABASE_URL
+  #       sync: false
+  #     - key: REDIS_URL
+  #       sync: false
+  #     - key: REDIS_REQUIRED
+  #       value: "true"
