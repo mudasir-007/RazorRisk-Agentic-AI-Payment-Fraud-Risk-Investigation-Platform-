@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# Environment & Secret Keys
+.env
+
+# Logs
+logs/*.log
+!logs/.gitkeep
+
+# Database (SQLite temporary file - generated on startup)
+razor_risk.db
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+README-2.md
