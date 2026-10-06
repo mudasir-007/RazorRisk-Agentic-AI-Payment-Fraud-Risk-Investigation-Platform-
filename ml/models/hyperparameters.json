@@ -1,0 +1,37 @@
+{
+  "selection_metric": "mean_cv_pr_auc",
+  "cv_folds": 3,
+  "xgboost": {
+    "best_params": {
+      "n_estimators": 450,
+      "max_depth": 4,
+      "learning_rate": 0.025,
+      "min_child_weight": 4,
+      "gamma": 0.05,
+      "reg_lambda": 3.0,
+      "subsample": 0.9,
+      "colsample_bytree": 0.85
+    },
+    "mean_cv_pr_auc": 0.9528144674888847,
+    "mean_cv_roc_auc": 0.9898131773976986
+  },
+  "gnn": {
+    "best_params": {
+      "hidden_dim_1": 16,
+      "hidden_dim_2": 8,
+      "learning_rate": 0.03,
+      "epochs": 350
+    },
+    "mean_cv_pr_auc": 0.3796659136618758,
+    "mean_cv_roc_auc": 0.6750420224704298
+  },
+  "stacker": {
+    "best_params": {
+      "C": 0.05,
+      "class_weight": "balanced"
+    },
+    "mean_cv_pr_auc": 0.9544776924445485,
+    "mean_cv_roc_auc": 0.9913343725145936
+  },
+  "note": "Final test set is excluded from all hyperparameter selection. Stacker tuning uses OOF base predictions."
+}
