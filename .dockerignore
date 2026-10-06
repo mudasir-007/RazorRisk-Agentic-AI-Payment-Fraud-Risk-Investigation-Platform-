@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+env/
+venv/
+ENV/
+.git/
+.gitignore
+.env
+logs/*.log
+razor_risk.db
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+node_modules/
