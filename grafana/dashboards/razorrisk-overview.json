@@ -1,0 +1,20 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "graphTooltip": 0,
+  "panels": [
+    {"type":"timeseries","title":"HTTP Request Rate","gridPos":{"h":8,"w":12,"x":0,"y":0},"targets":[{"expr":"sum(rate(razorrisk_http_requests_total[5m]))","legendFormat":"requests/s"}]},
+    {"type":"timeseries","title":"HTTP p95 Latency","gridPos":{"h":8,"w":12,"x":12,"y":0},"targets":[{"expr":"histogram_quantile(0.95, sum(rate(razorrisk_http_request_duration_seconds_bucket[5m])) by (le))","legendFormat":"p95"}]},
+    {"type":"timeseries","title":"Investigation Queue Depth","gridPos":{"h":8,"w":12,"x":0,"y":8},"targets":[{"expr":"razorrisk_investigation_queue_depth","legendFormat":"queue"}]},
+    {"type":"timeseries","title":"Investigation Outcomes","gridPos":{"h":8,"w":12,"x":12,"y":8},"targets":[{"expr":"sum(rate(razorrisk_investigations_total[5m])) by (status)","legendFormat":"{{status}}"}]},
+    {"type":"timeseries","title":"Rate Limit Hits","gridPos":{"h":8,"w":12,"x":0,"y":16},"targets":[{"expr":"sum(rate(razorrisk_rate_limit_hits_total[5m])) by (scope)","legendFormat":"{{scope}}"}]},
+    {"type":"timeseries","title":"Risk Decisions","gridPos":{"h":8,"w":12,"x":12,"y":16},"targets":[{"expr":"sum(rate(razorrisk_scores_total[5m])) by (risk_tier, decision)","legendFormat":"{{risk_tier}} / {{decision}}"}]}
+  ],
+  "schemaVersion": 41,
+  "style": "dark",
+  "tags": ["razorrisk","fraud","production"],
+  "templating": {"list": []},
+  "time": {"from":"now-30m","to":"now"},
+  "title":"RazorRisk Production Overview",
+  "version": 1
+}

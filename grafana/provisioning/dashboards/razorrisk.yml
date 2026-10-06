@@ -1,0 +1,10 @@
+apiVersion: 1
+providers:
+  - name: RazorRisk
+    orgId: 1
+    folder: RazorRisk
+    type: file
+    disableDeletion: true
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards
